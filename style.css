@@ -36,20 +36,16 @@ nav a:hover {
   color: white;
 }
 
-/* HERO SECTION */
+/* HERO */
 .hero {
   text-align: center;
   padding: 120px 20px;
 }
 
-.hero h1 {
-  font-size: 60px;
-  margin-bottom: 10px;
-}
-
-.hero p {
-  color: #aaa;
-  margin-bottom: 30px;
+/* IMPORTANT FIX: prevents invisible overlay blocking clicks */
+.hero {
+  position: relative;
+  z-index: 1;
 }
 
 /* BUTTONS */
@@ -57,6 +53,8 @@ nav a:hover {
   display: flex;
   justify-content: center;
   gap: 15px;
+  position: relative;
+  z-index: 10; /* ensures clickable layer */
 }
 
 .btn {
@@ -64,8 +62,14 @@ nav a:hover {
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 10;
 }
 
+/* BUTTON COLORS */
 .primary {
   background: #3b82f6;
   color: white;
