@@ -1,5 +1,5 @@
 # Ultron - The ULTIMATE Discord Bot
-# Complete working code with 80+ commands
+# Complete working code with 80+ commands - ENV VARIABLE FIXED
 # Website: https://voideretyt.github.io/Ultron-Bot/
 # Made with love for LO 💜
 
@@ -13,10 +13,18 @@ import random
 import math
 from datetime import datetime, timedelta
 import re
+from dotenv import load_dotenv
+
+# --- LOAD ENVIRONMENT VARIABLES ---
+load_dotenv()
 
 # --- CONFIG ---
-TOKEN = "MTUyMjExODY0MzAwMzk0OTA3Ng.GOUult.uSMiZtHnBZWtFhCk0CbraDzvkaPw1_13QLZ2sA"
-PREFIX = "!"
+TOKEN = os.getenv("DISCORD_TOKEN")
+PREFIX = os.getenv("PREFIX", "!")
+
+# --- CHECK IF TOKEN EXISTS ---
+if not TOKEN:
+    raise ValueError("❌ DISCORD_TOKEN not found in .env file! Please add it.")
 
 # --- ROLE NAMES ---
 VERIFY_ROLE = "Verified"
@@ -40,13 +48,34 @@ giveaways = {}
 # --- ON READY ---
 @bot.event
 async def on_ready():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    banner = """
+__/\\\________/\\\____________/\\\________________________/\\\\\\\\\\\\\\\______________/\\\\\\\\\_____________________/\\\\\_________________/\\\\\_____/\\\_        
+ _\/\\\_______\/\\\___________\/\\\_______________________\///////\\\/////_____________/\\\///////\\\_________________/\\\///\\\______________\/\\\\\\___\/\\\_       
+  _\/\\\_______\/\\\___________\/\\\_____________________________\/\\\_________________\/\\\_____\/\\\_______________/\\\/__\///\\\____________\/\\\/\\\__\/\\\_      
+   _\/\\\_______\/\\\___________\/\\\_____________________________\/\\\_________________\/\\\\\\\\\\\/_______________/\\\______\//\\\___________\/\\\//\\\_\/\\\_     
+    _\/\\\_______\/\\\___________\/\\\_____________________________\/\\\_________________\/\\\//////\\\______________\/\\\_______\/\\\___________\/\\\\//\\\\/\\\_    
+     _\/\\\_______\/\\\___________\/\\\_____________________________\/\\\_________________\/\\\____\//\\\_____________\//\\\______/\\\____________\/\\\_\//\\\/\\\_   
+      _\//\\\______/\\\____________\/\\\_____________________________\/\\\_________________\/\\\_____\//\\\_____________\///\\\__/\\\______________\/\\\__\//\\\\\\_  
+       __\///\\\\\\\\\/_____________\/\\\\\\\\\\\\\\\_________________\/\\\_________________\/\\\______\//\\\______________\///\\\\\/_______________\/\\\___\//\\\\\_ 
+        ____\/////////_______________\///////////////__________________\///__________________\///________\///_________________\/////_________________\///_____\/////__
+    """
+    
+    print(banner)
+    print("=" * 80)
     print(f"[+] Ultron is online as {bot.user}")
+    print(f"[+] Connected to {len(bot.guilds)} servers")
+    print(f"[+] Website: https://voideretyt.github.io/Ultron-Bot/")
+    print("=" * 80)
+    print(f"[+] Type {PREFIX}help in any server to see commands!")
+    print("=" * 80)
+    
     await bot.change_presence(activity=discord.Activity(
         type=discord.ActivityType.watching, 
         name=f"{PREFIX}help | {len(bot.guilds)} servers"
     ))
-    print(f"[+] Connected to {len(bot.guilds)} servers")
-    print(f"[+] Website: https://voideretyt.github.io/Ultron-Bot/")
+    
     await check_temp_mutes.start()
 
 # --- AUTO UNMUTE TASK ---
@@ -101,8 +130,8 @@ async def help_command(ctx):
     )
     
     embed.add_field(
-        name="🔧 Admin (12)",
-        value=f"`{PREFIX}addrole` `{PREFIX}removerole` `{PREFIX}createrole` `{PREFIX}deleterole` `{PREFIX}addall` `{PREFIX}removeall` `{PREFIX}nick` `{PREFIX}resetnick` `{PREFIX}perms` `{PREFIX}whois` `{PREFIX}addmember` `{PREFIX}killmember`",
+        name="🔧 Admin (9)",
+        value=f"`{PREFIX}addrole` `{PREFIX}removerole` `{PREFIX}createrole` `{PREFIX}deleterole` `{PREFIX}addall` `{PREFIX}removeall` `{PREFIX}nick` `{PREFIX}resetnick` `{PREFIX}killmember`",
         inline=False
     )
     
@@ -113,20 +142,8 @@ async def help_command(ctx):
     )
     
     embed.add_field(
-        name="💰 Economy (8)",
-        value=f"`{PREFIX}balance` `{PREFIX}daily` `{PREFIX}beg` `{PREFIX}steal` `{PREFIX}gamble` `{PREFIX}bet` `{PREFIX}give` `{PREFIX}leaderboard`",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="🎁 Giveaways (4)",
-        value=f"`{PREFIX}gstart` `{PREFIX}gend` `{PREFIX}greroll` `{PREFIX}glist`",
-        inline=False
-    )
-    
-    embed.add_field(
         name="🤖 Utility (10)",
-        value=f"`{PREFIX}ping` `{PREFIX}stats` `{PREFIX}user` `{PREFIX}serverinfo` `{PREFIX}avatar` `{PREFIX}roles` `{PREFIX}membercount` `{PREFIX}server` `{PREFIX}channels` `{PREFIX}uptime`",
+        value=f"`{PREFIX}ping` `{PREFIX}uptime` `{PREFIX}stats` `{PREFIX}user` `{PREFIX}serverinfo` `{PREFIX}avatar` `{PREFIX}roles` `{PREFIX}membercount` `{PREFIX}server` `{PREFIX}channels`",
         inline=False
     )
     
@@ -733,24 +750,10 @@ async def reset_nickname(ctx, user: discord.Member = None):
     except:
         await ctx.send("❌ Failed to reset nickname. Check my permissions.")
 
-@bot.command(name="addmember")
-@commands.has_permissions(administrator=True)
-async def add_member(ctx, user: discord.User = None):
-    """Add a user to the server via ID"""
-    if not user:
-        await ctx.send("❌ Usage: `!addmember user_id`")
-        return
-    try:
-        await ctx.guild.fetch_members(limit=1)
-        await ctx.guild.add_member(user)
-        await ctx.send(f"✅ Added {user.mention} to the server!")
-    except:
-        await ctx.send("❌ Failed to add member. They might already be in the server or I don't have permission.")
-
 @bot.command(name="killmember")
 @commands.has_permissions(administrator=True)
 async def kill_member(ctx, member: discord.Member = None):
-    """Kick and ban a member (joke command)"""
+    """Kill a member (joke command)"""
     if not member:
         await ctx.send("❌ Please mention a user to kill.")
         return
@@ -1273,15 +1276,6 @@ async def member_count(ctx):
     embed.add_field(name="Online", value=str(online), inline=True)
     await ctx.send(embed=embed)
 
-@bot.command(name="perms")
-@commands.has_permissions(administrator=True)
-async def check_perms(ctx, member: discord.Member = None):
-    if not member:
-        member = ctx.author
-    perms = [perm for perm, value in member.guild_permissions if value]
-    embed = discord.Embed(title=f"🔑 Permissions for {member.name}", description=", ".join(perms) if perms else "No permissions", color=0x00ff88)
-    await ctx.send(embed=embed)
-
 # ============================================
 # MISC COMMANDS
 # ============================================
@@ -1436,11 +1430,10 @@ async def on_command_error(ctx, error):
 # RUN THE BOT
 # ============================================
 if __name__ == "__main__":
-    if TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("❌ Please add your bot token to the TOKEN variable!")
-    else:
-        try:
-            bot.start_time = time.time()
-            bot.run(TOKEN)
-        except discord.LoginFailure:
-            print("❌ Invalid token! Please check your bot token.")
+    try:
+        bot.start_time = time.time()
+        bot.run(TOKEN)
+    except discord.LoginFailure:
+        print("❌ Invalid token! Please check your bot token.")
+    except Exception as e:
+        print(f"❌ An error occurred: {e}")
